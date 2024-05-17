@@ -22,6 +22,25 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
+# Line High Five 專案
+
+Line High Five 是一個基於 Nest.js 框架開發的 Line 應用程式，旨在實現使用者之間的擊掌互動。這個專案利用 Line Messaging API 來實現與用戶的互動，並使用 Prisma 作為 ORM 工具與後端資料庫進行交互。
+
+## 功能特色
+
+- **擊掌功能**：使用者可以向好友發送擊掌請求，並在好友接受或拒絕後收到通知。
+- **擊掌狀態查詢**：使用者可以查詢已發送的擊掌請求、已收到的擊掌請求以及已完成的擊掌互動。
+
+## 技術堆疊
+
+- **Nest.js**
+- **TypeScript**
+- **Line Messaging API**
+- **Prisma**
+- **RxJS**
+- **docker**
+- **postgresql**
+
 ## Description
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
