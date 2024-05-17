@@ -30,14 +30,6 @@ export class AuthController {
             return res.status(200).json(response);
         }
 
-        /*
-        this.authService.high_five(req).subscribe(() => {
-            //console.log(res.status(HttpStatus.OK).json());
-            return res.status(HttpStatus.OK).json();
-            
-        }
-        );*/
-
     }
 
 }

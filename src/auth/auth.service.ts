@@ -30,6 +30,7 @@ export class AuthService {
                     }
                 });
             }
+            //詢問向誰擊掌且保存對話狀態在session
             this.sessionStore.set(User_info, { step: 1, userId: User_info });
             return from(client.replyMessage({
                 replyToken: message_content.events[0].replyToken,
@@ -47,79 +48,29 @@ export class AuthService {
                 }));
         } catch (error) {
             console.error('Error:', error);
-            
+
         }
-        /*
-        console.log(
-            client.getProfile(message_content.events[0].source.userId)
-                .then((profile) => {
-                    console.log(profile.displayName); //顯示使用者名字
-                    console.log(profile.userId);
-                    console.log(profile.pictureUrl); // 顯示使用者大頭照網址
-                    console.log(profile.statusMessage) // 使用者自介內容
-                })
-                .catch((err) => {
-                    // error handling
-                    console.error(err)
-                })
-        );
-        */
 
-        /*const user = await this.prisma.user.create({
-            
-            data:{
-                Line_user_Id: 'User_info.user',
-                Line_user_Name: User_info.displayName,
-                reject_highfive: User_info.statusMessage,
-                request_highfive: message_content.events[0].replyToken,
-                already_highfive: message_content.events[0].replyToken,
-                notyet_highfive: message_content.events[0].message.text,
-                
-                
-            }
-        });
-        */
-
-        /*const textMessage: line.TextMessage = {
-          type: 'text',
-          text: '123',
-        };*/
-
-
-        /*
-        return from(client.replyMessage({
-            replyToken: message_content.events[0].replyToken,
-            messages: [{
-                type: 'text',
-                text: message_content.events[0].message.text,
-            }]
-        })
-            .catch((err) => {
-                if (err instanceof line.HTTPFetchError) {
-                    console.error(err.status);
-                    console.error(err.headers.get('x-line-request-id'));
-                    console.error(err.body);
-                }
-            }))
-            */
     }
     async handleHighFiveResponse(message_content: any) {
+        //向對方發起擊掌請求
         const client = new line.messagingApi.MessagingApiClient(this.clientConfig);
         const lineId = (await client.getProfile(message_content.events[0].source.userId)).userId
         const respondeText = message_content.events[0].message.text
         const session = this.sessionStore.get(lineId);
+        //退出擊掌請求session
         if (respondeText == '回到主頁') {
             this.sessionStore.delete(lineId);
             console.log('kill session')
         }
+        //進入提出擊掌請求session
         else if (session && session.step === 1) {
-            
+
             const requesterId = await this.prisma.user.findUnique({
                 where: { Line_Id: session.userId }
             });
-           console.log(typeof respondeText)
+            console.log(typeof respondeText)
             const responder = await this.prisma.user.findUnique({ where: { username: respondeText } });
-            //console.log(await this.prisma.user.findUnique({ where: { username: 'Howard' } }));
             if (responder) {
                 await this.prisma.highFive.create({
                     data: {
@@ -149,6 +100,7 @@ export class AuthService {
                 });
             }
         }
+        //進入是否同意擊掌請求session
         else if (session && session.step === 2) {
             const username = (await client.getProfile(message_content.events[0].source.userId)).displayName;
             const user = await this.prisma.user.findUnique({ where: { username: username } });
@@ -213,6 +165,7 @@ export class AuthService {
                 }]
             });
         }
+        //提出請求擊掌名單
         const sentHighFives = await this.prisma.highFive.findMany({
             where: { requester_id: user.user_id },
             include: {
@@ -223,6 +176,7 @@ export class AuthService {
                 },
             },
         });
+        //收到請求擊掌名單
         const receivedHighFives = await this.prisma.highFive.findMany({
             where: { responder_id: user.user_id },
             include: {
@@ -233,14 +187,10 @@ export class AuthService {
                 },
             },
         });
-
         const responderNames = sentHighFives.map(highFive => highFive.responder.username);
         const responderNamesString = responderNames.join(', ');
-
         const requesterNames = receivedHighFives.map(highFive => highFive.requester.username);
         const requesterNamesString = requesterNames.join(', ');
-
-        
         const highFiveRequests = await this.prisma.highFive.findMany({
             where: { responder_id: user.user_id, status: '已擊掌' },
             include: { requester: true },
@@ -271,12 +221,12 @@ export class AuthService {
             },
             {
                 type: 'text',
-                text: "已經互相擊掌\n"+List_highfive_request_String,
+                text: "已經互相擊掌\n" + List_highfive_request_String,
             }
             ]
         });
     }
-
+    //更新擊掌狀態
     async updateHighFiveStatus(highFiveId: number, status: string) {
         const highFive = await this.prisma.highFive.update({
             where: { highfive_id: highFiveId },
@@ -285,6 +235,8 @@ export class AuthService {
 
         return highFive;
     }
+    //決定是否同意擊掌請求
+    //進入session 2對話情況
     async decide_HighFive(message_content: any) {
         try {
             const client = new line.messagingApi.MessagingApiClient(this.clientConfig);
@@ -302,7 +254,7 @@ export class AuthService {
                 });
             }
             const highFiveRequest = await this.prisma.highFive.findFirst({ where: { responder_id: user.user_id, status: '未擊掌' } });
-            
+
             if (!highFiveRequest) {
                 return client.replyMessage({
                     replyToken: message_content.events[0].replyToken,
@@ -324,7 +276,7 @@ export class AuthService {
             }
         } catch (error) {
             console.error('Error:', error);
-           
+
         }
 
 
