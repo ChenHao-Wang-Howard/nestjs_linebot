@@ -6,8 +6,8 @@ import { PrismaService } from "src/prisma/prisma.service";
 export class AuthService {
     constructor(private prisma: PrismaService) { }
     clientConfig: line.ClientConfig = {
-        channelAccessToken: 'ff+7GSfye1RPRWylT/ibsK3WPxLeh2/Q+cPhC0vnD5YbxPMXW7HvEqbeNO63CsC9EbUGktpT3NTJ5NY1P3bjTOoHptd+BAxCHd32K/iattqMNiJ8hEUzu2L3FBBE0TULkCpJeU7X5MkX9u+sfETDZAdB04t89/1O/w1cDnyilFU=',
-        channelSecret: '8047f6b4f03cfc64be2e38d480b103d4',
+        channelAccessToken: 'Line_access_token',
+        channelSecret: 'Line_access_secret',
     };
     private sessionStore = new Map();
 
