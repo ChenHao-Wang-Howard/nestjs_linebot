@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  dev-db:
+    container_name: postgres
+    image: postgres:13
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: nest
+    networks:
+    - app-network
+
+  app:
+    build: .
+    ports: 
+    - "3333:3333"
+    environment:
+      DATABASE_URL: "postgresql://postgres:123@postgres:5432/nest?schema=public?connect_timeout=300"
+    depends_on:
+      - dev-db
+    networks:
+      - app-network
+
+volumes:
+  postgres-data:
+networks:
+  app-network:
+    driver: bridge

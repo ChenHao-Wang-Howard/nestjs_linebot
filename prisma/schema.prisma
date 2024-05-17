@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+model User{
+
+  user_id    Int       @id @default(autoincrement())
+  Line_Id    String?    @unique
+  username   String?    @unique
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now())
+  requester  HighFive[] @relation("Requester")
+  responder  HighFive[] @relation("Responder")
+  friends    Friend[]  @relation("UserFriends")
+  friendedBy Friend[]  @relation("FriendUsers")
+
+}
+model HighFive{
+
+  highfive_id  Int     @id @default(autoincrement())
+  requester_id Int
+  responder_id Int
+  status       String   @default("未擊掌") @db.VarChar
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  requester    User     @relation("Requester", fields: [requester_id], references: [user_id])
+  responder    User     @relation("Responder", fields: [responder_id], references: [user_id])
+
+} 
+model Friend {
+  user_id     Int 
+  friend_id   Int 
+  created_at  DateTime @default(now())
+
+  user        User     @relation("UserFriends", fields: [user_id], references: [user_id])
+  friend      User     @relation("FriendUsers", fields: [friend_id], references: [user_id])
+
+  @@id([user_id, friend_id])
+}
